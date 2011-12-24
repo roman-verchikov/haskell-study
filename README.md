@@ -1,4 +1,4 @@
-# Haskell-study
+# haskell-study
 
 ## Purpose 
 This is an education-only project for learning Haskell porgramming language. It
