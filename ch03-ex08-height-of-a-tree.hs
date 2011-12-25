@@ -11,9 +11,7 @@ data BTree a = Node a (BTree a) (BTree a)
 
 binaryTreeHeight :: BTree a -> Int
 binaryTreeHeight Empty = 0
-binaryTreeHeight (Node _ left right)  = maxOf (dfs left 1) (dfs right 1)
-    where dfs (Node _ l r) i          = maxOf (dfs l (i+1)) (dfs r (i+1))
-          dfs Empty i  = i
-          maxOf lhs rhs 
+binaryTreeHeight (Node _ left right)  = 1 + maxOf (binaryTreeHeight left) (binaryTreeHeight right)
+    where maxOf lhs rhs 
             | lhs > rhs = lhs
             | otherwise = rhs
