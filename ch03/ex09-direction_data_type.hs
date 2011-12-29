@@ -3,22 +3,6 @@
 -- either turns left, turns right, or forms a straight line. Define a Direction
 -- data type that lets you represent these possibilities.
 --
-
-data Point = Point {
-                 x :: Double,
-                 y :: Double
-             } deriving (Show)
-
-data Line = Line Point Point
-            deriving (Show)
-
-data Segment = LineSegment {
-                   pt1 :: Point,
-                   pt2 :: Point,
-                   pt3 :: Point
-               } 
-               deriving (Show)
-
 data Direction = TurnsLeft 
                | TurnsRight
                | StraightLine 
@@ -26,24 +10,17 @@ data Direction = TurnsLeft
 --------------------------------------------------------------------------------
 -- Write a function that calculates the turn made by three 2D points and
 -- returns a Direction.
---
-segmentDirection :: Segment -> Direction
-segmentDirection s 
-    | lineEquation (pt1 s) (pt2 s) (pt3 s) > 0 = TurnsLeft
-    | lineEquation (pt1 s) (pt2 s) (pt3 s) < 0 = TurnsRight
-    | otherwise                                = StraightLine
-        where lineEquation p1 p2 p3 = ((y p3) - (y p1)) * ((x p2) - (x p1)) - ( (y p2) - (y p1) ) * ( (x p3) - (x p1) )
---                                    (  y    -   y1  )   (  x2   -   x1  ) - (    y2  -   y1   )   (   x    -   x1   )
+getDirection a b c
+    | lineEquation a b c  > 0 = TurnsLeft
+    | lineEquation a b c  < 0 = TurnsRight
+    | lineEquation a b c == 0 = StraightLine
+        where lineEquation (x1,y1) (x2,y2) (x3,y3) = (y3-y1)*(x2-x1) - (y2-y1)*(x3-x1)
 
 --------------------------------------------------------------------------------
 -- Define a function that takes a list of 2D points and computes the direction
 -- of each successive triple. Given a list of points [a,b,c,d,e], it should
 -- begin by computing the turn made by [a,b,c], then the turn made by [b,c,d],
 -- then [c,d,e]. Your function should return a list of Direction.
-
-segmentsDirections :: [Point] -> [Direction]
-segmentsDirections pts
-    | length pts > 2 = ( segmentDirectionFromPoints (pts) : (segmentsDirections (tail pts)) )
-    | otherwise      = []
-        where segmentDirectionFromPoints pts = segmentDirection (LineSegment (head pts) (head (tail pts)) (head (tail (tail pts))))
-
+getDirections [] = []
+getDirections (a:b:[]) = []
+getDirections (a:b:c:xs) = (getDirection a b c : getDirections (b:c:xs))
