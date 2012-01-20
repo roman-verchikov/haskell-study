@@ -1,8 +1,15 @@
-module PrettyJSON where
+module PrettyJSON 
+(
+    renderJValue
+) 
+where
 
-import PrettyStub
-import Data.Bits
+import Numeric(showHex)
+import Prettify
+import Data.Bits(shiftR, (.&.))
 import Data.Char(ord)
+import SimpleJSON(JValue(..))
+
 
 renderValue :: JValue -> Doc
 renderValue (JBool true)  = text "true"
@@ -33,7 +40,7 @@ smallHex :: Int -> Doc
 smallHex x = text "\\u"
           <> text (replicate (4 - length h) '0')
           <> text h
-    where h = hexEscape x ""
+    where h = showHex x ""
 
 astral :: Int -> Doc
 astral n = smallHex (a + 0xd800) <> smallHex (b + 0xdc00)
@@ -41,7 +48,7 @@ astral n = smallHex (a + 0xd800) <> smallHex (b + 0xdc00)
           b = n .&. 0x3ff
 
 hexEscape :: Char -> Doc
-hexEscape c | d < 0x10000 = smallHex c
+hexEscape c | d < 0x10000 = smallHex d
             | otherwise   = astral (d - 0x10000)
     where d = ord c
 
@@ -54,3 +61,10 @@ punctuate :: Doc -> [Doc] -> [Doc]
 punctuate p [] = []
 punctuate p [d] = [d]
 punctuate p (d:ds) = (d <> p) : punctuate p ds
+
+renderJValue (JArray ary) = series '[' ']' renderJValue ary
+
+renderJValue (JObject obj)   = series '{' '}' field obj
+    where field (name, val)  = string name
+                            <> text ": "
+                            <> renderJValue val
