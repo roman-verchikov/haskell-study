@@ -9,10 +9,12 @@ module Prettify
     double,
     line,
     (<>),
+    (</>),
     hsep,
     fsep,
     hcat,
     compact,
+    pretty,
     fits
 ) where
 
