@@ -1,3 +1,9 @@
+module PrettyJSON where
+
+import PrettyStub
+import Data.Bits
+import Data.Char(ord)
+
 renderValue :: JValue -> Doc
 renderValue (JBool true)  = text "true"
 renderValue (JBool false) = text "false"
@@ -10,13 +16,13 @@ string :: String -> Doc
 string = enclose '"' '"' . hcat . map oneChar
 
 enclose :: Char -> Char -> Doc -> Doc
-enclose left right d = char left <> x <> char right
+enclose left right d = char left <> d <> char right
 
 oneChar :: Char -> Doc
 oneChar c = case lookup c simpleEscape of
               Just r -> text r
-              Nothing | mustEscape c = hexEscape c
-                      | otherwise    = char c
+              Nothing | mustEscape c -> hexEscape c
+                      | otherwise    -> char c
     where mustEscape c = c == ' ' || c == '\x7f' || c > '\xff'
 
 simpleEscape :: [(Char, String)]
@@ -27,7 +33,7 @@ smallHex :: Int -> Doc
 smallHex x = text "\\u"
           <> text (replicate (4 - length h) '0')
           <> text h
-    where h = showHex x ""
+    where h = hexEscape x ""
 
 astral :: Int -> Doc
 astral n = smallHex (a + 0xd800) <> smallHex (b + 0xdc00)
@@ -42,3 +48,9 @@ hexEscape c | d < 0x10000 = smallHex c
 series :: Char -> Char -> (a->Doc) -> [a] -> Doc
 series open close item = enclose open close 
                        . fsep . punctuate (char ',') . map item
+
+
+punctuate :: Doc -> [Doc] -> [Doc]
+punctuate p [] = []
+punctuate p [d] = [d]
+punctuate p (d:ds) = (d <> p) : punctuate p ds
