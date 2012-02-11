@@ -18,7 +18,7 @@ data JValue = JString String
             | JNull
             | JObject [(String, JValue)]
             | JArray [JValue]
-              deriving (Eq, Ord, Show)
+              deriving (Eq, Show)
 
 getString :: JValue -> Maybe String
 getString (JString s) = Just s
