@@ -1,24 +1,12 @@
--- Implementing simple JSON library in Haskell
---
-
-module SimpleJSON
-(
-    JValue(..),
-    getString,
-    getInt,
-    getDouble,
-    getObject,
-    getBool,
-    isNull
-) where 
+module SimpleJSON (JValue(..)) where
 
 data JValue = JString String
             | JNumber Double
             | JBool Bool
-            | JNull
+            | JNull 
             | JObject [(String, JValue)]
             | JArray [JValue]
-              deriving (Eq, Show)
+              deriving (Eq, Ord, Show)
 
 getString :: JValue -> Maybe String
 getString (JString s) = Just s
