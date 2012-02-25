@@ -4,20 +4,24 @@ module PrettyJSON
 ) 
 where
 
-import Numeric(showHex)
-import Prettify
 import Data.Bits(shiftR, (.&.))
 import Data.Char(ord)
+import Numeric(showHex)
+import Prettify
 import SimpleJSON(JValue(..))
 
 
-renderValue :: JValue -> Doc
-renderValue (JBool true)  = text "true"
-renderValue (JBool false) = text "false"
-renderValue (JNull)       = text "null"
-renderValue (JNumber num) = double num
-renderValue (JString str) = string str
-
+renderJValue :: JValue -> Doc
+renderJValue (JBool True)    = text "true"
+renderJValue (JBool False)   = text "false"
+renderJValue (JNull)         = text "null"
+renderJValue (JNumber num)   = double num
+renderJValue (JString str)   = string str
+renderJValue (JArray ary)    = series '[' ']' renderJValue ary
+renderJValue (JObject obj)   = series '{' '}' field obj
+    where field (name, val)  = string name
+                            <> text ": "
+                            <> renderJValue val
 
 string :: String -> Doc
 string = enclose '"' '"' . hcat . map oneChar
@@ -58,13 +62,8 @@ series open close item = enclose open close
 
 
 punctuate :: Doc -> [Doc] -> [Doc]
-punctuate p [] = []
-punctuate p [d] = [d]
+punctuate p []     = []
+punctuate p [d]    = [d]
 punctuate p (d:ds) = (d <> p) : punctuate p ds
 
-renderJValue (JArray ary) = series '[' ']' renderJValue ary
 
-renderJValue (JObject obj)   = series '{' '}' field obj
-    where field (name, val)  = string name
-                            <> text ": "
-                            <> renderJValue val
